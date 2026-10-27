@@ -1,0 +1,11 @@
+# Credenciais e dados locais
+config.json
+.env
+price_history.json
+price_history.json.*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/

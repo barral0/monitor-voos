@@ -1,0 +1,26 @@
+{
+    "flight": {
+        "origin": "CNF",
+        "destination": "LAX",
+        "departure_date": "2027-05-01",
+        "return_date": "2027-05-31",
+        "trip_type": "round-trip",
+        "seat_class": "economy",
+        "currency": "BRL",
+        "max_stops": 1,
+        "target_price": 4500
+    },
+    "providers": {
+        "google_flights": true,
+        "kayak": true,
+        "kayak_min_price": 3000
+    },
+    "telegram": {
+        "enabled": true,
+        "bot_token": "SEU_BOT_TOKEN_AQUI",
+        "chat_id": "SEU_CHAT_ID_AQUI",
+        "notify_always": false,
+        "notify_when_found": true,
+        "notify_when_cheaper": true
+    }
+}

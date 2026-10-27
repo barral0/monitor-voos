@@ -47,6 +47,15 @@ class SkillTests(unittest.TestCase):
     def test_sem_icones(self):
         self.assertEqual(sem_icones(self.texto), [])
 
+    def test_opcoes_de_uso_estao_documentadas(self):
+        for opcao in ("--max-stops", "--stay-days", "--step-days", "--telegram"):
+            self.assertIn(opcao, self.texto)
+
+    def test_regra_sobre_instalar_chromium_e_explicita(self):
+        t = self.texto.lower()
+        self.assertIn("chromium", t)
+        self.assertRegex(t, r"n[a\u00e3]o instal\w+ .{0,40}sem (pedido|autoriza)")
+
 
 class RepositorioTests(unittest.TestCase):
     def test_readme_sem_icones_nem_emojis(self):

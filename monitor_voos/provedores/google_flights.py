@@ -33,15 +33,31 @@ def converter_resultados(brutos: Sequence, max_escalas: int) -> List[Opcao]:
     return opcoes
 
 
+def _nasceu_no_parser(erro: BaseException) -> bool:
+    quadro = erro.__traceback__
+    while quadro is not None:
+        if quadro.tb_frame.f_code.co_name == "parse_js":
+            return True
+        quadro = quadro.tb_next
+    return False
+
+
 def _consulta_real(parametros: dict):
     from fast_flights import FlightQuery, create_query, get_flights
+    from fast_flights.exceptions import FlightsNotFound
     consulta = create_query(
         flights=[FlightQuery(date=d.isoformat(), from_airport=a, to_airport=b, max_stops=parametros["max_stops"])
                  for d, a, b in parametros["trechos"]],
         trip=parametros["trip"], seat=parametros["seat"], currency=parametros["currency"],
         language=parametros["language"], max_stops=parametros["max_stops"], hide_separate_and_self_transfer=False,
     )
-    return get_flights(consulta)
+    try:
+        return get_flights(consulta)
+    except TypeError as e:
+        # Sem voos, o Google devolve o bloco de resultados vazio e o parser do fast-flights estoura TypeError.
+        if _nasceu_no_parser(e):
+            raise FlightsNotFound("sem voos para esta consulta") from e
+        raise
 
 
 class GoogleFlights:

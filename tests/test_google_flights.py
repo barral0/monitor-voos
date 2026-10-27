@@ -1,5 +1,6 @@
 import unittest
 from datetime import date
+from unittest import mock
 
 from fast_flights.exceptions import FlightsNotFound
 
@@ -53,6 +54,31 @@ class ConsultaTests(unittest.TestCase):
         p = GoogleFlights(lambda parametros: [resultado_bruto(4000), resultado_bruto(5000)])
         self.assertEqual([o.preco for o in p.buscar(voo())], [4000.0, 5000.0])
         self.assertEqual(p.nome, "Google Flights")
+
+
+class RespostaVaziaTests(unittest.TestCase):
+    """O Google devolve payload[3] vazio quando nao ha voos; o parser do fast-flights estoura TypeError."""
+
+    def test_resposta_sem_voos_do_google_vira_lista_vazia(self):
+        import fast_flights
+        from fast_flights.parser import parse_js
+        vazio = 'data:[null,null,null,null,null,null,null,[null,[[],[]]]],x'
+
+        def get_flights_falso(_consulta):
+            return parse_js(vazio)
+
+        with mock.patch.object(fast_flights, "get_flights", get_flights_falso):
+            self.assertEqual(GoogleFlights().buscar(voo(max_escalas=0)), [])
+
+    def test_typeerror_de_outra_origem_continua_sendo_falha(self):
+        import fast_flights
+
+        def quebrado(_consulta):
+            raise TypeError("erro nosso, fora do parser")
+
+        with mock.patch.object(fast_flights, "get_flights", quebrado):
+            with self.assertRaises(ErroProvedor):
+                GoogleFlights().buscar(voo())
 
 
 if __name__ == "__main__":
